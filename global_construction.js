@@ -28,9 +28,9 @@ hai kek ${m.pushName}
 
 *CREATOR*
 
-│• =>
-│>
-│$
+│${prefix} =>
+│${prefix} >
+│${prefix} $
 
 object your-bot by mr.one`
 reply(cap) 
@@ -66,4 +66,4 @@ reply(cap)
       })
    }
 }
-}
+   }
