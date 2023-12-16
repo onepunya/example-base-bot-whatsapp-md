@@ -1,5 +1,6 @@
 global.namaBot = "your-bot"
 global.nomorOwner = "6289676358643"
+global.database = "database"
 
 /* jangan di rusak ya baru aja gua bikin dah di rusak
 script = obj your-bot v000beta

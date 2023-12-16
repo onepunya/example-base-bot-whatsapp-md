@@ -18,24 +18,35 @@ if (isCmd) {
 const reply = (teks) => {
   your.sendMessage(my, { text: teks }, { quoted: m })
 }
+const setting = global.db.setting
 //===== command ====
 switch (command) {
 case 'menu': 
 case 'help': {
 let cap = `*Obj YOUR-BOT*
 
-hai kek ${m.pushName}
+hai kak ${m.pushName}
 
 *CREATOR*
 
 │${prefix} =>
 │${prefix} >
 │${prefix} $
+│${prefix} self / public
 
 object your-bot by mr.one`
 reply(cap) 
 } break
-
+case "self": {
+setting.self = true
+your.public = false
+reply('*Success mode self*')
+} break
+case "public": {
+setting.self = false
+your.public = true
+reply('*Success mode public*')
+} break
 //syntax
  default:
  if (body.startsWith('=>')) {
@@ -66,4 +77,4 @@ reply(cap)
       })
    }
 }
-   }
+}

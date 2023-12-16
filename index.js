@@ -13,14 +13,17 @@ const readlineInterface = readline.createInterface({
       input: process.stdin,
       output: process.stdout
     });
-
+const machine = new(require('./engine/localdb'))(global.database)
     const askQuestion = question =>
       new Promise(resolve => readlineInterface.question(question, resolve));
 const store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream: 'store' }) })
 
 async function startWA() {
     process.on("unhandledRejection", error => console.error(error))
-    const { state, saveCreds } = await useMultiFileAuthState("./session")
+    const { state, saveCreds } = await useMultiFileAuthState("./storage/session")
+       global.db = {users:[], chats:[], groups:[], bots:[], files:[], statistic:{}, sticker:{}, setting:{}, ...(await machine.fetch() ||{})}
+   await machine.save(global.db)
+
     const { version, isLatest } = await fetchLatestBaileysVersion()
     const nodeCache = new NodeCache()
     const connectionUpdate = {
@@ -40,7 +43,7 @@ async function startWA() {
     store.bind(your.ev)
     
     setInterval(() => {
-        store.writeToFile("./store.json")
+        store.writeToFile("./storage/store.json")
     }, 10000)
  
 
@@ -78,21 +81,27 @@ mek = chatUpdate.messages[0]
 if (!mek.message) return
 mek.message = (Object.keys(mek.message)[0] === 'ephemeralMessage') ? mek.message.ephemeralMessage.message : mek.message
 if (mek.key && mek.key.remoteJid === 'status@broadcast') return
-if (!mek.key.fromMe && chatUpdate.type === 'notify') return
+if (!your.public && !mek.key.fromMe && chatUpdate.type === 'notify') return
 if (mek.key.id.startsWith('BAE5') && mek.key.id.length === 16) return
 m = smsg(your, mek, store)
 require("./global_construction")(your, m, chatUpdate, store)
+require('./engine/data')(m)
 } catch (err) {
 console.log(err)
 }
-})
-          
+})         
     your.ev.on('creds.update', saveCreds)
     your.number = your.user?.["id"]["split"](":")[0] + "@s.whatsapp.net"
     your.owner = {
       "name": `${namaBot} WhatsApp`,
       "number": `${nomorOwner}@s.whatsapp.net`
     }
-    return your
-    }
+    
+       setInterval(async () => {
+      if (global.db) await machine.save(global.db)
+   }, 10_000)
+   
+   return your
+}
+
 startWA()
